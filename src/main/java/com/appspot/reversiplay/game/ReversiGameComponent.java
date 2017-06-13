@@ -205,11 +205,13 @@ public class ReversiGameComponent {
 				}
 			}
 			String string = sb.toString();
+			int value = Integer.parseInt(string,2);
+			System.out.println(string + "-" + value);
 
-			short v = Short.parseShort(string,2);
-			System.out.println(string + "-" + v);
-			
-			boardStateBuffer.putShort(v);
+			ByteBuffer putInt = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putInt(value);
+			byte[] array = putInt.array();
+			boardStateBuffer.put(array[0]);
+			boardStateBuffer.put(array[1]);
 		}
 		
 		boardStateBuffer.putShort((short)turn.ordinal());

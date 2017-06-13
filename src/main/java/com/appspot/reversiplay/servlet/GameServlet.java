@@ -49,15 +49,37 @@ public class GameServlet extends HttpServlet {
 			ByteBuffer byteBuffer = ByteBuffer.wrap(data);
 			byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
-			ShortBuffer asShortBuffer = byteBuffer.asShortBuffer();
+//			ShortBuffer asShortBuffer = byteBuffer.asShortBuffer();
+			byte[] array = byteBuffer.array();
 			
-			for(int i=0 ; i<8 ;++i) {
-				String binaryString = String.format("%16s", Integer.toBinaryString(asShortBuffer.get(i))).replace(' ', '0');
-				LOG.info(binaryString);
+			for(int i=0; i < 16 ; i=i+2) {
+				byte[] integerByte = new byte[4];
+				integerByte[0] = array[i];
+				integerByte[1] = array[i+1];
+				integerByte[2] = (byte)0x0;
+				integerByte[3] = (byte)0x0;
+				ByteBuffer intBuf = ByteBuffer.wrap(integerByte).order(ByteOrder.LITTLE_ENDIAN);
+				String binaryString = String.format("%16s", Integer.toBinaryString(intBuf.getInt())).replace(' ', '0');
+				System.out.println(binaryString);
 				binaryBoardState.add(binaryString);
 			}
-			short who = asShortBuffer.get(8);
-			short where = asShortBuffer.get(9);
+			
+//			for(int i=0 ; i<8 ;++i) {
+//				String binaryString = String.format("%16s", Integer.toBinaryString()).replace(' ', '0');				
+//				binaryBoardState.add(binaryString);
+//			}			
+			
+			byte[] whoBytes = new byte[2];
+			whoBytes[0] = array[16];
+			whoBytes[1] = array[17];
+			
+			short who = ByteBuffer.wrap(whoBytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+			
+			byte[] whereBytes = new byte[2];
+			whereBytes[0] = array[18];
+			whereBytes[1] = array[19];
+			short where = ByteBuffer.wrap(whereBytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+			
 			byte[] putResult = ReversiGameComponent.put(Piece.values()[who], binaryBoardState, where);
 			resp.getOutputStream().write(putResult);
 		} else {
