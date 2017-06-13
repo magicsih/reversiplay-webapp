@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Reversi Online Play - Free Game</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<style type="text/css">
+/* Links */
+a,
+a:focus,
+a:hover {
+  color: #fff;
+}
+
+/* Custom default button */
+.btn-default,
+.btn-default:hover,
+.btn-default:focus {
+  color: #333;
+  text-shadow: none; /* Prevent inheritence from `body` */
+  background-color: #fff;
+  border: 1px solid #fff;
+}
+
+
+/*
+ * Base structure
+ */
+
+html,
+body {
+	width: 100%;
+    height: 100%;
+    margin: 0px;
+    border: 0;
+    overflow: hidden; /*  Disable scrollbars */
+    display: block;  /* No floating content on sides */
+
+  background-color: #333;
+}
+body {
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+
+/* Extra markup and styles for table-esque vertical and horizontal centering */
+.site-wrapper {
+  display: table;
+  width: 100%;
+  height: 100%; /* For at least Firefox */
+  min-height: 100%;
+  -webkit-box-shadow: inset 0 0 100px rgba(0,0,0,.5);
+          box-shadow: inset 0 0 100px rgba(0,0,0,.5);
+}
+.site-wrapper-inner {
+  display: table-cell;
+  vertical-align: top;
+}
+.cover-container {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* Padding for spacing */
+.inner {
+  padding: 30px;
+}
+
+
+/*
+ * Header
+ */
+.masthead-brand {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.masthead-nav > li {
+  display: inline-block;
+}
+.masthead-nav > li + li {
+  margin-left: 20px;
+}
+
+@media (min-width: 768px) {
+  .masthead-brand {
+    float: left;
+  }
+  .masthead-nav {
+    float: right;
+  }
+}
+
+/*
+ * Cover
+ */
+
+.cover {
+  padding: 0 20px;
+}
+.cover .btn-lg {
+  padding: 10px 20px;
+  font-weight: bold;
+}
+
+
+/*
+ * Footer
+ */
+
+.mastfoot {
+  color: #999; /* IE8 proofing */
+  color: rgba(255,255,255,.5);
+}
+
+/*
+ * Affix and center
+ */
+
+@media (min-width: 768px) {
+  /* Pull out the header and footer */
+  .masthead {
+    position: fixed;
+    top: 0;
+  }
+  .mastfoot {
+    position: fixed;
+    bottom: 0;
+  }
+  /* Start the vertical centering */
+  .site-wrapper-inner {
+    vertical-align: middle;
+  }
+  /* Handle the widths */
+  .masthead,
+  .mastfoot,
+  .cover-container {
+    width: 100%; /* Must be percentage or pixels for horizontal alignment */
+  }
+}
+
+@media (min-width: 992px) {
+  .masthead,
+  .mastfoot,
+  .cover-container {
+    width: 700px;
+  }
+}
+
+.spinner {
+  margin: 100px auto;
+  width: 40px;
+  height: 40px;
+  position: relative;
+  text-align: center;
+  
+  -webkit-animation: sk-rotate 2.0s infinite linear;
+  animation: sk-rotate 2.0s infinite linear;
+}
+
+.dot1, .dot2 {
+  width: 60%;
+  height: 60%;
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  background-color: #FFF;
+  border-radius: 100%;
+  
+  -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2.0s infinite ease-in-out;
+}
+
+.dot2 {
+  top: auto;
+  bottom: 0;
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+@-webkit-keyframes sk-rotate { 100% { -webkit-transform: rotate(360deg) }}
+@keyframes sk-rotate { 100% { transform: rotate(360deg); -webkit-transform: rotate(360deg) }}
+
+@-webkit-keyframes sk-bounce {
+  0%, 100% { -webkit-transform: scale(0.0) }
+  50% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bounce {
+  0%, 100% { 
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 50% { 
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
+}
+</style>
+</head>
+<body>
+ <div class="site-wrapper">
+  <div class="site-wrapper-inner">
+    <div class="cover-container">
+      <div class="masthead clearfix">
+        <div class="inner">
+          <h3 class="masthead-brand">Reversi Play</h3>
+          <nav>
+			<ul class="nav masthead-nav nav-pills" role="tablist">
+			  <li role="presentation"><a>You <span class="badge" id="currentBlackStone">0</span></a></li>
+			  <li role="presentation"><a>Computer <span class="badge" id="currentWhiteStone">0</span></a></li>
+			</ul>
+          </nav>
+        </div>
+      </div>
+      <div class="inner cover">
+        <div class="lead">
+			<canvas id="gameBoard" width="500" height="500" style="border:1px solid #444; "></canvas>
+ 			<div class="spinner" style="display:none;" id="indicator">
+			  <div class="dot1"></div>
+			  <div class="dot2"></div>
+			</div>
+		</div>			
+        <p class="lead">
+          <button id="btnStartGame" class="btn btn-lg btn-default" onclick="startGame();">Play!</button>
+          <button id="btnCancelMatch" class="btn btn-lg btn-default" onclick="cancelMatch();" style="display:none;">Cancel</button>
+          <button id="btnResignGame" class="btn btn-lg btn-default" onclick="resignGame();" style="display:none;">Resign</button>
+        </p>
+        
+      </div>
+
+      <div class="mastfoot">
+        <div class="inner">
+          <p>Copyright 2015.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+	<script>
+	var GameBoard = function(canvasId, size, listener) {
+		const NONE = "N";
+		const WHITE = "W";
+		const BLACK = "B";
+		const WHITE_COLOR = "#FFF";
+		const BLACK_COLOR = "#000";
+		//const VALID_COLOR = "rgba(255, 255, 0, 0.7)";
+		const VALID_COLOR = "Red";
+		const PIECE_MARGIN = 0.8;
+
+		this.canvas = document.getElementById(canvasId);
+		this.ctx = this.canvas.getContext("2d");
+		this.listener = listener;
+
+		var currentBoard = [];
+		var validMoves = [];
+		var size = size;
+		var boardCellColor = "#333";
+		var boardCellColorEven = "#999";
+		var self = this;
+
+		this.canvas.addEventListener('mousedown', function(evt) {
+			var rect = evt.currentTarget.getBoundingClientRect();
+			var x = evt.clientX - rect.left;
+			var y = evt.clientY - rect.top;
+			onPiecePut.call(self,x,y);
+		});
+		
+		function onPiecePut(x,y) {
+			var row = size - parseInt((this.canvas.height - y) / (this.canvas.height / size)) - 1;
+			var col = size - parseInt((this.canvas.width - x) / (this.canvas.width / size)) - 1;
+
+			var isValid = false;
+			var index = row * size + col;
+			for(var i in validMoves) {
+				if(validMoves[i] == index) {
+					isValid = true;
+					break;
+				}
+			}
+
+			if(isValid == false) return;
+
+			this.listener.onPiecePut(currentBoard, row,col);
+		}
+
+		function drawBoard() {
+			var even = false;
+
+			for(var r = 0; r < size;++r) {
+				var rowPosition = r * (this.canvas.width / size);
+				for(var c=0;c < size;++c) {
+					var colPosition = c * (this.canvas.height / size);
+					if(even) {
+						this.ctx.fillStyle = boardCellColorEven;
+					} else{
+						this.ctx.fillStyle = boardCellColor;
+					}
+					even = !even;
+					this.ctx.fillRect(colPosition,rowPosition, this.canvas.width / size, this.canvas.height / size);
+				}
+				even = !even;
+			}
+		};
+
+		this.setBoardCellColor = function(cell, even) {
+			boardCellColor = cell;
+			boardCellColorEven = even; 
+		};
+
+		function drawPiece(r,c,piece) {
+			var rowPosition = r * (this.canvas.width / size);
+			var colPosition = c * (this.canvas.height / size);
+			this.ctx.beginPath();
+			if(piece === WHITE) {
+				this.ctx.fillStyle = WHITE_COLOR;
+			} else if (piece === BLACK) {
+				this.ctx.fillStyle = BLACK_COLOR;
+			}
+			this.ctx.arc(colPosition + (this.canvas.height / size / 2), rowPosition + (this.canvas.width /  size / 2), this.canvas.width/ size/2 - (this.canvas.width /size /2 * (1-PIECE_MARGIN)), 0, 2*Math.PI);
+			this.ctx.fill();
+		};
+
+
+		function reversePiece(r,c,from,to) {
+			var rowPosition = r * (this.canvas.width / size);
+			var colPosition = c * (this.canvas.height / size);
+			this.ctx.beginPath();
+			if(to === WHITE) {
+				this.ctx.fillStyle = WHITE_COLOR;
+				this.ctx.strokeStyle = BLACK_COLOR;
+			} else if (to === BLACK) {
+				this.ctx.fillStyle = BLACK_COLOR;
+				this.ctx.strokeStyle = WHITE_COLOR;
+			}
+			this.ctx.arc(colPosition + (this.canvas.height / size / 2), rowPosition + (this.canvas.width /  size / 2), this.canvas.width/ size/2 - (this.canvas.width /size /2 * (1-PIECE_MARGIN)), 0, 2*Math.PI);
+			this.ctx.fill();
+			this.ctx.lineWidth = 2;
+			this.ctx.stroke();
+		};
+
+		this.drawPieces = function(pieces, vMoves) {
+			drawBoard.call(self);
+			validMoves = vMoves;
+
+			var lastBoardState = currentBoard.slice(0); // clone the current board state
+			currentBoard = pieces;
+
+			for(var r = 0 ; r < size; r++) {
+				for(var c = 0 ; c < size; c++) {
+					var index = r * size + c;
+					var piece = pieces[index];
+
+					if(lastBoardState.length == currentBoard.length) {
+						var previousPiece = lastBoardState[index];
+						//Catch pieces only needed to reverse
+						if(piece !== NONE && previousPiece !== NONE && piece !== previousPiece) {
+							if(previousPiece === WHITE) {
+								//Transitioning White to Black
+								reversePiece.call(self, r, c, WHITE, BLACK);
+							} else if(previousPiece === BLACK) {
+								reversePiece.call(self, r, c, BLACK, WHITE);
+							}
+						} else{
+							if(piece === WHITE) {
+								drawPiece.call(self,r, c, WHITE);
+							} else if (piece === BLACK) {
+								drawPiece.call(self,r, c, BLACK);
+							}
+						}
+					} else{
+						if(piece === WHITE) {
+							drawPiece.call(self, r,c,WHITE);
+						} else if (piece === BLACK) {
+							drawPiece.call(self, r,c,BLACK);
+						}
+					}
+				}
+			}
+
+			for(var i in validMoves) {
+				var row = parseInt(validMoves[i] / size);
+				var col = parseInt(validMoves[i] - (row * size));
+
+				var rowPosition = row * (this.canvas.width / size);
+				var colPosition = col * (this.canvas.height / size);
+
+				this.ctx.beginPath();
+				this.ctx.fillStyle = VALID_COLOR;
+				this.ctx.arc(colPosition + (this.canvas.height / size / 2), rowPosition + (this.canvas.width /  size / 2), this.canvas.width/ size/2 - (this.canvas.width / size / 3), 0, 2*Math.PI);
+				this.ctx.fill();
+			}
+
+		};
+		
+		this.saveAsImage = function() {
+			var w=window.open('about:blank','image from canvas');
+			w.document.write("<img src='"+this.canvas.toDataURL("image/png")+"' alt='from canvas'/>");
+		};
+	};
+	
+		var gameBoard = null;
+		var relayingSubscription =null;
+		
+		gameBoard = new GameBoard("gameBoard", 8, {
+ 			onPiecePut : function(board, row, col) {
+ 				console.log(board);
+ 				
+ 				var num = new Uint16Array(8);
+ 				
+ 				for(var i=0;i<8;++i) {
+ 					var binaryString = "";
+ 					for(var j=0;j<8;++j) {
+ 						var c = board[i*8+j];
+ 						if(c === "B") {
+ 	 						binaryString += "01";
+ 	 					} else if (c=== "W") {
+ 	 						binaryString += "10";
+ 	 					} else {
+ 	 						binaryString += "00";
+ 	 					}
+ 					}
+ 					console.log(binaryString);
+ 					num[i] = parseInt(binaryString, 2);
+ 				}
+ 				console.log(num);
+ 				console.log("Put piece at (row,col): " + row + "," + col);
+ 				
+ 				var xhr = new XMLHttpRequest();
+ 		        xhr.open('POST', '/game/put', true);
+ 		        xhr.responseType = 'arraybuffer';
+ 		        
+ 		        
+				xhr.onload = function(e) {
+					if (this.status == 200) {
+				   		var game = xhr.response;
+				   		console.log(game.byteLength);
+			       		console.log(typeof game);
+			       		console.log(game);
+				  	}
+				};
+				
+				xhr.send(num);
+ 			}
+ 		});
+		
+		 window.addEventListener('resize', resizeCanvas, false);
+         resizeCanvas();
+			
+         function resizeCanvas() {
+        	 var canvas = document.getElementById('gameBoard');
+        	 canvas.width = window.innerWidth / 3;
+        	 canvas.height = canvas.width;
+         }
+         
+         var xhr = new XMLHttpRequest();
+         xhr.open('POST', '/game/new', true);
+         xhr.responseType = 'arraybuffer';
+
+         xhr.onload = function(e) {
+           if (this.status == 200) {
+        	   var game = xhr.response;
+        	   	console.log(game.byteLength);
+	       		console.log(typeof game);
+	       		console.log(game);
+	       		var pieces = [];
+	       		var validMoves = [];
+	       		var num = new Uint16Array(game, 0);
+	       		console.log(num);
+	       		
+	       		for(var i = 0; i < num.length; ++i) {
+	       			var n = num[i];
+	       			
+	       			var binaryString = (("0000000000000000" + n.toString(2)).slice(-16));
+	       			console.log(i + "  " + binaryString);
+	       			
+	       			for (var j = 0, len = binaryString.length; j < len; j=j+2) {
+	       				var cell = binaryString[j] + binaryString[j+1];
+	       				
+	       				if(cell === '01') {
+	       					pieces.push("B");
+	       				} else if(cell === '10') {
+	       					pieces.push("W");
+	       				} else if(cell === '11') {
+	       					pieces.push("N");
+	       					validMoves.push(i*8+j/2);
+	       				} else {
+	       					pieces.push("N");
+	       				}
+	       			}
+	       		}
+	       		console.log(pieces);
+	       		console.log(validMoves);
+	       		gameBoard.drawPieces(pieces, validMoves);
+          	}
+         };
+
+         xhr.send();
+         
+        
+         //BoardSize+BoardState+WheretoPut
+         
+         
+         /*
+         
+         var line = '0000000110000000';
+var num = parseInt(line,2);
+console.log(num);
+var binaryString = num.toString(2)
+console.log(("0000000000000000" + num.toString(2)).slice(-16));
+
+         */
+         
+         
+	</script>
+</body>
+</html>
