@@ -247,8 +247,8 @@ body {
 		const BLACK = "B";
 		const WHITE_COLOR = "#FFF";
 		const BLACK_COLOR = "#000";
-		//const VALID_COLOR = "rgba(255, 255, 0, 0.7)";
-		const VALID_COLOR = "Red";
+		const VALID_COLOR = "rgba(255, 255, 0, 0.7)";
+// 		const VALID_COLOR = "Red";
 		const PIECE_MARGIN = 0.8;
 
 		this.canvas = document.getElementById(canvasId);
@@ -256,6 +256,7 @@ body {
 		this.listener = listener;
 
 		var currentBoard = [];
+		var currentTurn = 0; //0:Black 1:White
 		var validMoves = [];
 		var size = size;
 		var boardCellColor = "#333";
@@ -284,7 +285,7 @@ body {
 
 			if(isValid == false) return;
 
-			this.listener.onPiecePut(currentBoard, row,col);
+			this.listener.onPiecePut(currentTurn, currentBoard, row,col);
 		}
 
 		function drawBoard() {
@@ -342,11 +343,12 @@ body {
 			this.ctx.stroke();
 		};
 
-		this.drawPieces = function(pieces, vMoves) {
+		this.drawPieces = function(turn, pieces, vMoves) {
 			drawBoard.call(self);
 			validMoves = vMoves;
 
 			var lastBoardState = currentBoard.slice(0); // clone the current board state
+			currentTurn = turn;
 			currentBoard = pieces;
 
 			for(var r = 0 ; r < size; r++) {
@@ -406,10 +408,10 @@ body {
 		var relayingSubscription =null;
 		
 		gameBoard = new GameBoard("gameBoard", 8, {
- 			onPiecePut : function(board, row, col) {
+ 			onPiecePut : function(turn, board, row, col) {
  				console.log(board);
  				
- 				var num = new Uint16Array(8);
+ 				var num = new Uint16Array(10);
  				
  				for(var i=0;i<8;++i) {
  					var binaryString = "";
@@ -426,6 +428,8 @@ body {
  					console.log(binaryString);
  					num[i] = parseInt(binaryString, 2);
  				}
+ 				num[8] = turn;
+ 				num[9] = row *8 + col;
  				console.log(num);
  				console.log("Put piece at (row,col): " + row + "," + col);
  				
@@ -436,11 +440,8 @@ body {
  		        
 				xhr.onload = function(e) {
 					if (this.status == 200) {
-				   		var game = xhr.response;
-				   		console.log(game.byteLength);
-			       		console.log(typeof game);
-			       		console.log(game);
-				  	}
+		        		onBoardDataReceived(xhr.response);
+		          	}
 				};
 				
 				xhr.send(num);
@@ -460,61 +461,62 @@ body {
          xhr.open('POST', '/game/new', true);
          xhr.responseType = 'arraybuffer';
 
+         function onBoardDataReceived(game) {
+       		var pieces = [];
+       		var validMoves = [];
+       		var num = new Uint16Array(game, 0);
+       		var black = 0, white = 0;
+       		for(var i = 0; i < num.length-1; ++i) {
+       			var n = num[i];
+       			
+       			var binaryString = (("0000000000000000" + n.toString(2)).slice(-16));
+       			console.log(i + "  " + binaryString);
+       			
+       			for (var j = 0, len = binaryString.length; j < len; j=j+2) {
+       				var cell = binaryString[j] + binaryString[j+1];
+       				
+       				if(cell === '01') {
+       					pieces.push("B");
+       					black++;
+       				} else if(cell === '10') {
+       					pieces.push("W");
+       					white++;
+       				} else if(cell === '11') {
+       					pieces.push("N");
+       					validMoves.push(i*8+j/2);
+       				} else {
+       					pieces.push("N");
+       				}
+       			}
+       		}
+       		var who = num[num.length-1];
+       		
+       		console.log("WHO(0:B,1:W,2:GAMEOVER):" + who);
+       		console.log("PIECES:" + pieces);
+       		console.log("VALID MOVES:" + validMoves);
+       		console.log("Black:" + black);
+       		console.log("White:" + white);
+       		
+       		gameBoard.drawPieces(who, pieces, validMoves);
+       		
+       		if(who == 2) {
+       			var winner = "Black";
+       			if(black < white) {
+       				winner = "White";
+       			} else {
+       				winner = "Both";
+       			}
+       			alert("Game Over! Winner is " + winner);
+       		}
+         }
+         
          xhr.onload = function(e) {
-           if (this.status == 200) {
-        	   var game = xhr.response;
-        	   	console.log(game.byteLength);
-	       		console.log(typeof game);
-	       		console.log(game);
-	       		var pieces = [];
-	       		var validMoves = [];
-	       		var num = new Uint16Array(game, 0);
-	       		console.log(num);
-	       		
-	       		for(var i = 0; i < num.length; ++i) {
-	       			var n = num[i];
-	       			
-	       			var binaryString = (("0000000000000000" + n.toString(2)).slice(-16));
-	       			console.log(i + "  " + binaryString);
-	       			
-	       			for (var j = 0, len = binaryString.length; j < len; j=j+2) {
-	       				var cell = binaryString[j] + binaryString[j+1];
-	       				
-	       				if(cell === '01') {
-	       					pieces.push("B");
-	       				} else if(cell === '10') {
-	       					pieces.push("W");
-	       				} else if(cell === '11') {
-	       					pieces.push("N");
-	       					validMoves.push(i*8+j/2);
-	       				} else {
-	       					pieces.push("N");
-	       				}
-	       			}
-	       		}
-	       		console.log(pieces);
-	       		console.log(validMoves);
-	       		gameBoard.drawPieces(pieces, validMoves);
+           	if (this.status == 200) {
+        		onBoardDataReceived(xhr.response);
           	}
          };
 
          xhr.send();
-         
-        
-         //BoardSize+BoardState+WheretoPut
-         
-         
-         /*
-         
-         var line = '0000000110000000';
-var num = parseInt(line,2);
-console.log(num);
-var binaryString = num.toString(2)
-console.log(("0000000000000000" + num.toString(2)).slice(-16));
-
-         */
-         
-         
 	</script>
 </body>
 </html>
