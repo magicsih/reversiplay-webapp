@@ -73,8 +73,8 @@ public class ReversiGameComponent {
 		
 		if(validMoves.isEmpty()) {
 			// See if next next turn (means me) also doesn't have valid moves.
-			List<Integer> nextValidMoves = getValidMoves(board, putter);
-			if(nextValidMoves.isEmpty()) {
+			validMoves = getValidMoves(board, putter);
+			if(validMoves.isEmpty()) {
 				nextTurn = Piece.NONE;
 			} else{
 				nextTurn = putter;
@@ -206,7 +206,7 @@ public class ReversiGameComponent {
 			}
 			String string = sb.toString();
 			int value = Integer.parseInt(string,2);
-			System.out.println(string + "-" + value);
+//			System.out.println(string + "-" + value);
 
 			ByteBuffer putInt = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putInt(value);
 			byte[] array = putInt.array();
@@ -219,6 +219,7 @@ public class ReversiGameComponent {
 		return boardStateBuffer.array();
 	}
 
+	@SuppressWarnings("unused")
 	private static void debugBoard(Piece[][] board) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("\nboard");
