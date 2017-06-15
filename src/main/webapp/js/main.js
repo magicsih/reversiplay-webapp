@@ -86,17 +86,13 @@ function onBoardDataReceived(game) {
 			}
 		}
 	}
-	var bestMove = num[num.length-2];
 	var who = num[num.length-1];
 
 	console.log("WHO(0:B,1:W,2:GAMEOVER):" + who);
 	console.log("PIECES:" + pieces);
-	console.log("BEST MOVE:" + bestMove);
 	console.log("VALID MOVES:" + validMoves);
 	console.log("Black:" + black);
 	console.log("White:" + white);
-
-	gameBoard.drawPieces(who, pieces, validMoves, bestMove);
 
 	if(who == 2) {
 		var winner = "Both";
@@ -109,12 +105,35 @@ function onBoardDataReceived(game) {
 	} else{
 		if(who == myTurn) {
 			//BLACK TURN (CURRENT MY TURN ONLY)
-//			gameBoard.lockPut(false);
+			console.log("Black Turn");
+			gameBoard.lockPut(false);
 		} else{ 
 			//WHITE TURN (CURRENT PC TURN ONLY)
-//			gameBoard.lockPut(true);
+			console.log("White Turn");
+			validMoves = []; // To clear valid move when ai turn
+			gameBoard.lockPut(true);
+			var xhrBestMove = new XMLHttpRequest();
+			xhrBestMove.open('POST', '/game/bestmove', true);
+			xhrBestMove.responseType = 'arraybuffer';
+			
+			xhrBestMove.onload = function(e) {
+				if (this.status == 200) {
+					var resBuffer = xhrBestMove.response;
+					var resData = new Uint16Array(resBuffer, 0);
+					var bestMove = resData[0];
+					console.log("BestMove:" + bestMove);
+					setTimeout(function() { gameBoard.put(bestMove); }, 1000);
+				}
+			};
+			
+			var bestMoveSendData = new Uint16Array(num.length+1);
+			bestMoveSendData.set(num);
+			bestMoveSendData[num.length] = 3;
+			xhrBestMove.send(bestMoveSendData);
 		}
 	}
+	
+	gameBoard.drawPieces(who, pieces, validMoves);
 }
 
 var xhrNewGame = new XMLHttpRequest();

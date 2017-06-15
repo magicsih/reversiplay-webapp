@@ -10,6 +10,7 @@ public class ReversiGameComponent {
 
 	private static final Logger LOG = Logger.getLogger(ReversiGameComponent.class.getSimpleName());
 
+	private static final int ADDITIONAL_BOARD_STATE = 2; // current boardstate+turn(2byte)
 	private static final int BOARD_SIZE = 8;
 	private static final int BITS_PER_BYTE = 8;
 	private static final int BIN_SIZE_OF_BOARD = BOARD_SIZE * BOARD_SIZE * 2;
@@ -17,7 +18,7 @@ public class ReversiGameComponent {
 
 	private static final byte[] NEW_BOARD;
 	static {
-		ByteBuffer buffer = ByteBuffer.allocate(BYTE_SIZE_OF_BOARD + 4);
+		ByteBuffer buffer = ByteBuffer.allocate(BYTE_SIZE_OF_BOARD + ADDITIONAL_BOARD_STATE);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer
 		.putShort(Short.parseShort("0000000000000000",2))
@@ -28,7 +29,6 @@ public class ReversiGameComponent {
 		.putShort(Short.parseShort("0000000011000000",2))
 		.putShort(Short.parseShort("0000000000000000",2))
 		.putShort(Short.parseShort("0000000000000000",2))
-		.putShort((short)-1)
 		.putShort((short)Piece.BLACK.ordinal());
 		
 		NEW_BOARD = buffer.array();
@@ -60,8 +60,20 @@ public class ReversiGameComponent {
 		}
 		
 		// MiniMax 알고리즘으로 가장 이득이 되는 ValidMove를 찾는다.
-		Integer bestValidMove = getBestMove(board, validMoves, nextTurn, nextTurn, 5);
-		return makeByteArrayFromBoardState(nextTurn, board, validMoves, bestValidMove);
+//		Integer bestValidMove = getBestMove(board, validMoves, nextTurn, nextTurn, 5);
+		return makeByteArrayFromBoardState(nextTurn, board, validMoves);
+	}
+	
+	public static byte[] getBestMove(Piece turn, List<String> binaryBoardState, short depth) {
+		Piece[][] board = makeBoardFromBinaryStrings(binaryBoardState);
+		debugBoard(board);
+		List<Integer> validMoves = getValidMoves(board, turn);
+		System.out.println(validMoves);
+		System.out.println(depth);
+		int bestValidMove = getBestMove(board, validMoves, turn, turn, depth);
+		System.out.println(bestValidMove);
+		
+		return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)bestValidMove).array();
 	}
 
 	private static void playMove(Piece putter, int position, Piece[][] board) {
@@ -321,26 +333,8 @@ public class ReversiGameComponent {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private static Piece[][] initializeBoard() {
-		Piece[][] board = new Piece[BOARD_SIZE][BOARD_SIZE];
-		for (int i = 0; i < BOARD_SIZE; ++i) {
-			for (int j = 0; j < BOARD_SIZE; ++j) {
-				board[i][j] = Piece.NONE;
-				if ((BOARD_SIZE / 2) - 2 < i && i < (BOARD_SIZE / 2) + 1 && (BOARD_SIZE / 2) - 2 < j && j < (BOARD_SIZE / 2) + 1) {
-					if (i == j) {
-						board[i][j] = Piece.WHITE;
-					} else {
-						board[i][j] = Piece.BLACK;
-					}
-				}
-			}
-		}
-		return board;
-	}
-
-	private static byte[] makeByteArrayFromBoardState(Piece turn ,Piece[][] boardState, List<Integer> validMoves, int bestValidMove){
-		ByteBuffer boardStateBuffer = ByteBuffer.allocate(BYTE_SIZE_OF_BOARD + 4);
+	private static byte[] makeByteArrayFromBoardState(Piece turn ,Piece[][] boardState, List<Integer> validMoves){
+		ByteBuffer boardStateBuffer = ByteBuffer.allocate(BYTE_SIZE_OF_BOARD + ADDITIONAL_BOARD_STATE);
 		boardStateBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
 		for(int r=0;r < BOARD_SIZE;++r){
@@ -369,11 +363,29 @@ public class ReversiGameComponent {
 			boardStateBuffer.put(array[1]);
 		}
 		
-		boardStateBuffer.putShort((short)bestValidMove);
+//		boardStateBuffer.putShort((short)bestValidMove);
 		//Append here if you append here ByteBuffer size also need to expand. here and newGame function
 		boardStateBuffer.putShort((short)turn.ordinal()); // 누가 차례인지를 Last로 하자..
 		
 		return boardStateBuffer.array();
+	}
+
+	@SuppressWarnings("unused")
+	private static Piece[][] initializeBoard() {
+		Piece[][] board = new Piece[BOARD_SIZE][BOARD_SIZE];
+		for (int i = 0; i < BOARD_SIZE; ++i) {
+			for (int j = 0; j < BOARD_SIZE; ++j) {
+				board[i][j] = Piece.NONE;
+				if ((BOARD_SIZE / 2) - 2 < i && i < (BOARD_SIZE / 2) + 1 && (BOARD_SIZE / 2) - 2 < j && j < (BOARD_SIZE / 2) + 1) {
+					if (i == j) {
+						board[i][j] = Piece.WHITE;
+					} else {
+						board[i][j] = Piece.BLACK;
+					}
+				}
+			}
+		}
+		return board;
 	}
 
 	@SuppressWarnings("unused")
@@ -395,4 +407,6 @@ public class ReversiGameComponent {
 		}
 		System.out.println(builder.toString());
 	}
+
+	
 }

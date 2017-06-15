@@ -107,13 +107,20 @@ var GameBoard = function(canvasId, size, listener) {
 		this.ctx.lineWidth = 2;
 		this.ctx.stroke();
 	};
+	
+	this.put = function(position) {
+		var row = parseInt(position / size);
+		var col = parseInt(position - (row * size));
+		console.log("AI Move:" + row +"," +col);
+		this.listener.onPiecePut(currentTurn, currentBoard, row,col);
+	};
+	
 	this.redraw = function() {
 		this.drawPieces(currentTurn, currentBoard, validMoves, validBestMove);
 	};
-	this.drawPieces = function(turn, pieces, vMoves, bestMove) {
+	this.drawPieces = function(turn, pieces, vMoves) {
 		drawBoard.call(self);
 		validMoves = vMoves;
-		validBestMove = bestMove;
 
 		var lastBoardState = currentBoard.slice(0); // clone the current board state
 		currentTurn = turn;
@@ -159,13 +166,7 @@ var GameBoard = function(canvasId, size, listener) {
 			var colPosition = col * (this.canvas.height / size);
 
 			this.ctx.beginPath();
-
-			if(validMoves[i] === validBestMove) {
-				this.ctx.fillStyle = VALID_COLOR_BEST;
-			} else {
-				this.ctx.fillStyle = VALID_COLOR;
-			}
-			
+			this.ctx.fillStyle = VALID_COLOR;
 			this.ctx.arc(colPosition + (this.canvas.height / size / 2), rowPosition + (this.canvas.width /  size / 2), this.canvas.width/ size/2 - (this.canvas.width / size / 3), 0, 2*Math.PI);
 			this.ctx.fill();
 		}
