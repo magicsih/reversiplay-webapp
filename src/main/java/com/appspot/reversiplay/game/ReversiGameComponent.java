@@ -66,12 +66,8 @@ public class ReversiGameComponent {
 	
 	public static byte[] getBestMove(Piece turn, List<String> binaryBoardState, short depth) {
 		Piece[][] board = makeBoardFromBinaryStrings(binaryBoardState);
-		debugBoard(board);
 		List<Integer> validMoves = getValidMoves(board, turn);
-		System.out.println(validMoves);
-		System.out.println(depth);
 		int bestValidMove = getBestMove(board, validMoves, turn, turn, depth);
-		System.out.println(bestValidMove);
 		
 		return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)bestValidMove).array();
 	}

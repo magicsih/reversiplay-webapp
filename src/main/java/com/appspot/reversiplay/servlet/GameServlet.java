@@ -58,7 +58,7 @@ public class GameServlet extends HttpServlet {
 				integerByte[3] = (byte)0x0;
 				ByteBuffer intBuf = ByteBuffer.wrap(integerByte).order(ByteOrder.LITTLE_ENDIAN);
 				String binaryString = String.format("%16s", Integer.toBinaryString(intBuf.getInt())).replace(' ', '0');
-				System.out.println(binaryString);
+//				System.out.println(binaryString);
 				binaryBoardState.add(binaryString);
 			}
 			
@@ -95,7 +95,7 @@ public class GameServlet extends HttpServlet {
 				integerByte[3] = (byte)0x0;
 				ByteBuffer intBuf = ByteBuffer.wrap(integerByte).order(ByteOrder.LITTLE_ENDIAN);
 				String binaryString = String.format("%16s", Integer.toBinaryString(intBuf.getInt())).replace(' ', '0');
-				System.out.println(binaryString);
+//				System.out.println(binaryString);
 				binaryBoardState.add(binaryString);
 			}
 			
