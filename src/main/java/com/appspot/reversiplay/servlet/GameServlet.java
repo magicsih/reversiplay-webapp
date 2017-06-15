@@ -6,7 +6,6 @@ package com.appspot.reversiplay.servlet;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -49,7 +48,6 @@ public class GameServlet extends HttpServlet {
 			ByteBuffer byteBuffer = ByteBuffer.wrap(data);
 			byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 
-//			ShortBuffer asShortBuffer = byteBuffer.asShortBuffer();
 			byte[] array = byteBuffer.array();
 			
 			for(int i=0; i < 16 ; i=i+2) {
@@ -63,11 +61,6 @@ public class GameServlet extends HttpServlet {
 				System.out.println(binaryString);
 				binaryBoardState.add(binaryString);
 			}
-			
-//			for(int i=0 ; i<8 ;++i) {
-//				String binaryString = String.format("%16s", Integer.toBinaryString()).replace(' ', '0');				
-//				binaryBoardState.add(binaryString);
-//			}			
 			
 			byte[] whoBytes = new byte[2];
 			whoBytes[0] = array[16];
