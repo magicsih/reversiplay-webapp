@@ -140,15 +140,14 @@ public class ReversiGameComponent {
 			}
 		}
 		
-		boolean isMaximizer = maximizer.equals(putter);
+		final boolean isMaximizingPiece = maximizer.equals(putter);
 		int currentScore = 0;
-		int bestScore = (!isMaximizer) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+		int bestScore = (!isMaximizingPiece) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
 		
 		int bestMove = -1;
 		
 		if (depth == 0 || isGameOver) {            
-			bestScore = evaluate(board, putter);            
-	        return bestMove;
+	        return evaluate(board, putter); 
 	    } else {
 	    	
 	    	for(int m : copiedValidMoves) {
@@ -167,7 +166,8 @@ public class ReversiGameComponent {
 	    		}
 	    		currentScore = getBestMove(copiedBoard, vm, maximizer, nextTurn, depth - 1);
 	    		
-	    		if(maximizer == nextTurn) {
+	    		if(isMaximizingPiece) {
+//	    			bestScore = Math.maximizerax(bestScore, currentScore);
 	    			if (currentScore > bestScore) {
 	                    bestScore = currentScore;
 	                    bestMove = m;
