@@ -44,7 +44,6 @@ gameBoard = new GameBoard("gameBoard", 8, {
 
 window.addEventListener('resize', resizeCanvas, false);
 
-
 function resizeCanvas() {
 	var canvas = document.getElementById('gameBoard');
 	var baseLength = ((window.innerWidth-20) > (window.innerHeight - 100)) ? (window.innerHeight-100) : (window.innerWidth-20);
@@ -55,14 +54,13 @@ function resizeCanvas() {
 
 resizeCanvas();
 
-var xhr = new XMLHttpRequest();
-xhr.open('POST', '/game/new', true);
-xhr.responseType = 'arraybuffer';
-
 function onBoardDataReceived(game) {
 	var pieces = [];
 	var validMoves = [];
 	var num = new Uint16Array(game, 0);
+	
+	window.location.hash='#'+encodeBase64GameState(num);
+	
 	var black = 0, white = 0;
 	for(var i = 0; i < num.length-1; ++i) {
 		var n = num[i];
@@ -108,10 +106,32 @@ function onBoardDataReceived(game) {
 	}
 }
 
-xhr.onload = function(e) {
+var xhrNewGame = new XMLHttpRequest();
+xhrNewGame.open('POST', '/game/new', true);
+xhrNewGame.responseType = 'arraybuffer';
+
+xhrNewGame.onload = function(e) {
 	if (this.status == 200) {
-		onBoardDataReceived(xhr.response);
+		onBoardDataReceived(xhrNewGame.response);
 	}
 };
 
-xhr.send();
+if(window.location.hash.length > 1) {
+	var encodedHash = window.location.hash.replace("#","");
+	var gameState = decodeBase64GameState(encodedHash);
+	onBoardDataReceived(gameState);
+} else {
+	xhrNewGame.send();
+}
+
+function decodeBase64GameState(b64EncodedGameState) {
+	var u8 = new Uint8Array(atob(b64EncodedGameState).split("").map(function(c) {
+	    return c.charCodeAt(0); 
+    }));
+	return new Uint16Array(u8.buffer);
+}
+
+function encodeBase64GameState(u16State) {
+	var u8 = new Uint8Array(u16State.buffer);
+	return btoa(String.fromCharCode.apply(null, u8));
+}
