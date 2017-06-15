@@ -3,17 +3,12 @@ div.container {
     border: 1px solid gray;
 }
 
-header, footer {
-    padding: 0;
+h3.header {
+/*     padding: 0; */
     color: white;
-    background-color: black;
+    background-color: Black;
     clear: left;
     text-align: center;
-}
-
-header p {
- 	color: white;
-    background-color: black;
 }
 
 div.gamepanel {
