@@ -66,9 +66,12 @@ public class ReversiGameComponent {
 	
 	public static byte[] getBestMove(Piece turn, List<String> binaryBoardState, short depth) {
 		Piece[][] board = makeBoardFromBinaryStrings(binaryBoardState);
+		debugBoard(board);
 		List<Integer> validMoves = getValidMoves(board, turn);
+		LOG.info("Depth:" + depth);
+		LOG.info("validMoves:" + validMoves);
 		int bestValidMove = getBestMove(board, validMoves, turn, turn, depth);
-		
+		LOG.info("BestValidMove:" + bestValidMove);
 		return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)bestValidMove).array();
 	}
 
@@ -139,7 +142,7 @@ public class ReversiGameComponent {
 		
 		boolean isMaximizer = maximizer.equals(putter);
 		int currentScore = 0;
-		int bestScore = (isMaximizer) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+		int bestScore = (!isMaximizer) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
 		
 		int bestMove = -1;
 		
@@ -160,7 +163,7 @@ public class ReversiGameComponent {
 	    			vm = getValidMoves(board, putter);
 	    			if(!vm.isEmpty()) {
 	    				nextTurn = putter;
-	    			}
+	    			} 
 	    		}
 	    		currentScore = getBestMove(copiedBoard, vm, maximizer, nextTurn, depth - 1);
 	    		
