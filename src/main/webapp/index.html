@@ -2,8 +2,11 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
 <meta name="mobile-web-app-capable" content="yes"/>
+<meta content="reversi, play, board, othello, online, game, free, chess" name="keywords">
+<meta content="This app allows you play Reversi Game against computer opponent at any time with any devices." name="description">
 <title>Reversi Play - Free HTML5 Othello Game</title>
 <link type="text/css" rel="stylesheet" href="/css/main.css"/>
 </head>
@@ -15,6 +18,18 @@
 		<div class="gamepanel">
 			<canvas id="gameBoard" width="1280" height="1280"></canvas>
 		</div>
+		<article>
+			<h3>Game rule</h3>
+			<ul>
+				<li>Possible spots to place the piece will be displayed in faded color</li>
+				<li>Once player places a piece in certain position, opponent’s pieces in between your existing piece and the one you newly placed will turn into your color in a row</li>
+				<li>Player can place a single piece in each turn</li>
+				<li>Game will be finished if game board is full or if there is no other way for one opponent to win the other</li>
+				<li>Player who has more number of pieces in their color will win the game when the game is finished</li>
+			</ul>
+			<h3>Tip</h3>
+			<p>Copy your current URI. You can use if for saving your game state or sharing it to your friend.</p>
+		</article>
 		<footer>
 			Copyright
 		</footer>

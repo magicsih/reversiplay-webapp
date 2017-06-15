@@ -1,5 +1,6 @@
 var gameBoard = null;
 var relayingSubscription =null;
+const myTurn = 0; // Current Black Only
 
 gameBoard = new GameBoard("gameBoard", 8, {
 	onPiecePut : function(turn, board, row, col) {
@@ -85,15 +86,17 @@ function onBoardDataReceived(game) {
 			}
 		}
 	}
+	var bestMove = num[num.length-2];
 	var who = num[num.length-1];
 
 	console.log("WHO(0:B,1:W,2:GAMEOVER):" + who);
 	console.log("PIECES:" + pieces);
+	console.log("BEST MOVE:" + bestMove);
 	console.log("VALID MOVES:" + validMoves);
 	console.log("Black:" + black);
 	console.log("White:" + white);
 
-	gameBoard.drawPieces(who, pieces, validMoves);
+	gameBoard.drawPieces(who, pieces, validMoves, bestMove);
 
 	if(who == 2) {
 		var winner = "Both";
@@ -103,6 +106,14 @@ function onBoardDataReceived(game) {
 			winner = "Black";
 		}
 		alert("Game Over! Winner is " + winner);
+	} else{
+		if(who == myTurn) {
+			//BLACK TURN (CURRENT MY TURN ONLY)
+//			gameBoard.lockPut(false);
+		} else{ 
+			//WHITE TURN (CURRENT PC TURN ONLY)
+//			gameBoard.lockPut(true);
+		}
 	}
 }
 

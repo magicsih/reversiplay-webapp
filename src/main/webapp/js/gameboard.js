@@ -5,7 +5,7 @@ var GameBoard = function(canvasId, size, listener) {
 	const WHITE_COLOR = "#FFF";
 	const BLACK_COLOR = "#000";
 	const VALID_COLOR = "rgba(255, 255, 0, 0.7)";
-//	const VALID_COLOR = "Red";
+	const VALID_COLOR_BEST = "Red";
 	const PIECE_MARGIN = 0.8;
 
 	this.canvas = document.getElementById(canvasId);
@@ -15,14 +15,17 @@ var GameBoard = function(canvasId, size, listener) {
 	var currentBoard = [];
 	var currentTurn = 0; //0:Black 1:White
 	var validMoves = [];
+	var validBestMove = -1;
 	var size = size;
 	var boardCellColor = "#333";
 	var boardCellColorEven = "#999";
 	var self = this;
+	var lockForMouseDown = false;
 
 	console.log(this.canvas.width + "x" + this.canvas.height);
 
 	this.canvas.addEventListener('mousedown', function(evt) {
+		if(lockForMouseDown) return;
 		var rect = evt.currentTarget.getBoundingClientRect();
 		var x = evt.clientX - rect.left;
 		var y = evt.clientY - rect.top;
@@ -105,11 +108,12 @@ var GameBoard = function(canvasId, size, listener) {
 		this.ctx.stroke();
 	};
 	this.redraw = function() {
-		this.drawPieces(currentTurn, currentBoard,validMoves);
+		this.drawPieces(currentTurn, currentBoard, validMoves, validBestMove);
 	};
-	this.drawPieces = function(turn, pieces, vMoves) {
+	this.drawPieces = function(turn, pieces, vMoves, bestMove) {
 		drawBoard.call(self);
 		validMoves = vMoves;
+		validBestMove = bestMove;
 
 		var lastBoardState = currentBoard.slice(0); // clone the current board state
 		currentTurn = turn;
@@ -155,7 +159,13 @@ var GameBoard = function(canvasId, size, listener) {
 			var colPosition = col * (this.canvas.height / size);
 
 			this.ctx.beginPath();
-			this.ctx.fillStyle = VALID_COLOR;
+
+			if(validMoves[i] === validBestMove) {
+				this.ctx.fillStyle = VALID_COLOR_BEST;
+			} else {
+				this.ctx.fillStyle = VALID_COLOR;
+			}
+			
 			this.ctx.arc(colPosition + (this.canvas.height / size / 2), rowPosition + (this.canvas.width /  size / 2), this.canvas.width/ size/2 - (this.canvas.width / size / 3), 0, 2*Math.PI);
 			this.ctx.fill();
 		}
@@ -166,4 +176,8 @@ var GameBoard = function(canvasId, size, listener) {
 		var w=window.open('about:blank','image from canvas');
 		w.document.write("<img src='"+this.canvas.toDataURL("image/png")+"' alt='from canvas'/>");
 	};
+	
+	this.lockPut = function(lock) {
+		lockForMouseDown = lock;
+	}
 };
