@@ -4,6 +4,7 @@ const myTurn = 0; // Current Black Only
 
 gameBoard = new GameBoard("gameBoard", 8, {
 	onPiecePut : function(turn, board, row, col) {
+		stopThinkingIndicator();
 		console.log(board);
 
 		var num = new Uint16Array(10);
@@ -94,6 +95,10 @@ function onBoardDataReceived(game) {
 	console.log("Black:" + black);
 	console.log("White:" + white);
 
+	gameBoard.drawPieces(who, pieces, validMoves);
+	document.getElementById("blackPieces").innerHTML = black;
+	document.getElementById("whitePieces").innerHTML = white;
+	
 	if(who == 2) {
 		var winner = "Both";
 		if(black < white) {
@@ -107,6 +112,8 @@ function onBoardDataReceived(game) {
 			//BLACK TURN (CURRENT MY TURN ONLY)
 			console.log("Black Turn");
 			gameBoard.lockPut(false);
+			startThinkingIndicator("black", 500);
+			
 		} else{ 
 			//WHITE TURN (CURRENT PC TURN ONLY)
 			console.log("White Turn");
@@ -130,10 +137,9 @@ function onBoardDataReceived(game) {
 			bestMoveSendData.set(num);
 			bestMoveSendData[num.length] = 3;
 			xhrBestMove.send(bestMoveSendData);
+			startThinkingIndicator("white", 500);
 		}
-	}
-	
-	gameBoard.drawPieces(who, pieces, validMoves);
+	}	
 }
 
 var xhrNewGame = new XMLHttpRequest();
@@ -164,4 +170,23 @@ function decodeBase64GameState(b64EncodedGameState) {
 function encodeBase64GameState(u16State) {
 	var u8 = new Uint8Array(u16State.buffer);
 	return btoa(String.fromCharCode.apply(null, u8));
+}
+
+var thinkingIndicator;
+function startThinkingIndicator(turn, interval) {
+	thinkingIndicator = window.setInterval( function() {
+    var wait = document.getElementById('wait-' + turn);
+    if ( wait.innerHTML.length > 3 ) 
+        wait.innerHTML = "";
+    else 
+        wait.innerHTML += ".";
+    }, interval);
+}
+
+function stopThinkingIndicator() {
+	clearInterval(thinkingIndicator);
+	var waits = document.querySelectorAll("span.wait");
+	for(var i in waits) {
+		waits[i].innerHTML = "";
+	}
 }

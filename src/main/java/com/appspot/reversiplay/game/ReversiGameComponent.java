@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.google.appengine.api.utils.SystemProperty;
+
 public class ReversiGameComponent {
 
 	private static final Logger LOG = Logger.getLogger(ReversiGameComponent.class.getSimpleName());
@@ -39,7 +41,7 @@ public class ReversiGameComponent {
 
 	public static byte[] put(Piece putter, List<String> binaryBoardState, int position) {
 		
-		LOG.info("Piece:" + putter + " position:" + position);
+		LOG.fine("Piece:" + putter + " position:" + position);
 		
 		Piece[][] board = makeBoardFromBinaryStrings(binaryBoardState);
 
@@ -59,19 +61,25 @@ public class ReversiGameComponent {
 			}
 		}
 		
-		// MiniMax 알고리즘으로 가장 이득이 되는 ValidMove를 찾는다.
-//		Integer bestValidMove = getBestMove(board, validMoves, nextTurn, nextTurn, 5);
 		return makeByteArrayFromBoardState(nextTurn, board, validMoves);
 	}
 	
 	public static byte[] getBestMove(Piece turn, List<String> binaryBoardState, short depth) {
 		Piece[][] board = makeBoardFromBinaryStrings(binaryBoardState);
-		debugBoard(board);
+		getBoardStateAsString(board);
+		
 		List<Integer> validMoves = getValidMoves(board, turn);
-		LOG.info("Depth:" + depth);
-		LOG.info("validMoves:" + validMoves);
+		
+		
 		int bestValidMove = getBestMove(board, validMoves, turn, turn, depth);
-		LOG.info("BestValidMove:" + bestValidMove);
+		
+		if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Development) {
+			LOG.info(getBoardStateAsString(board));
+			LOG.info("Depth:" + depth);
+			LOG.info("ValidMoves:" + validMoves);
+			LOG.info("BestValidMove:" + bestValidMove);
+		}
+		
 		return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort((short)bestValidMove).array();
 	}
 
@@ -167,7 +175,6 @@ public class ReversiGameComponent {
 	    		currentScore = getBestMove(copiedBoard, vm, maximizer, nextTurn, depth - 1);
 	    		
 	    		if(isMaximizingPiece) {
-//	    			bestScore = Math.maximizerax(bestScore, currentScore);
 	    			if (currentScore > bestScore) {
 	                    bestScore = currentScore;
 	                    bestMove = m;
@@ -387,8 +394,7 @@ public class ReversiGameComponent {
 		return board;
 	}
 
-	@SuppressWarnings("unused")
-	private static void debugBoard(Piece[][] board) {
+	private static String getBoardStateAsString(Piece[][] board) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("\nboard");
 		builder.append("\n  ");
@@ -404,7 +410,7 @@ public class ReversiGameComponent {
 			}
 			builder.append("\n");
 		}
-		System.out.println(builder.toString());
+		return builder.toString();
 	}
 
 	

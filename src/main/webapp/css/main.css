@@ -3,17 +3,41 @@ div.container {
     border: 1px solid gray;
 }
 
-h3.header {
-/*     padding: 0; */
-    color: white;
+div.header {
+    position: relative; /* needed for stacking */
+    height: 50px;
+    width: 100%;
+    line-height: 50px;
+    vertical-align: middle;
+    text-align:center;
     background-color: Black;
-    clear: left;
-    text-align: center;
+    color: White;
 }
-
 div.gamepanel {
     padding: 0;
     margin:0;
     overflow: hidden;
     text-align: center;
+}
+div.score {
+  height:40px;
+}
+
+div.score .score-inner {
+  width: 50%; 
+  height:100%; 
+  line-height:40px;
+  vertical-align:middle;
+}
+
+div.score .score-inner.left {
+  float: left;
+}
+
+div.score .score-inner.right {
+  float: right;
+}
+
+div.score .score-inner span.wait {
+  position:absolute;
 }
