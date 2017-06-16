@@ -95,19 +95,10 @@ function onBoardDataReceived(game) {
 	console.log("Black:" + black);
 	console.log("White:" + white);
 
-	gameBoard.drawPieces(who, pieces, validMoves);
 	document.getElementById("blackPieces").innerHTML = black;
 	document.getElementById("whitePieces").innerHTML = white;
 	
-	if(who == 2) {
-		var winner = "Both";
-		if(black < white) {
-			winner = "White";
-		} else if (white < black) {
-			winner = "Black";
-		}
-		alert("Game Over! Winner is " + winner);
-	} else{
+	if(who < 2) {
 		if(who == myTurn) {
 			//BLACK TURN (CURRENT MY TURN ONLY)
 			console.log("Black Turn");
@@ -139,7 +130,19 @@ function onBoardDataReceived(game) {
 			xhrBestMove.send(bestMoveSendData);
 			startThinkingIndicator("white", 5);
 		}
-	}	
+	}
+	
+	gameBoard.drawPieces(who, pieces, validMoves);
+	
+	if(who == 2) {
+		var winner = "Draw";
+		if(black < white) {
+			winner = "White Win";
+		} else if (white < black) {
+			winner = "Black Win";
+		}
+		document.getElementById("gameresult").innerHTML = " - " + winner;
+	}
 }
 
 var xhrNewGame = new XMLHttpRequest();
