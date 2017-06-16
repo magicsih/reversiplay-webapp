@@ -13,6 +13,9 @@ div.header {
     background-color: Black;
     color: White;
 }
+div.header a {
+	color: White;
+}
 div.gamepanel {
     padding: 0;
     margin:0;
