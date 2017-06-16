@@ -112,7 +112,7 @@ function onBoardDataReceived(game) {
 			//BLACK TURN (CURRENT MY TURN ONLY)
 			console.log("Black Turn");
 			gameBoard.lockPut(false);
-			startThinkingIndicator("black", 500);
+			startThinkingIndicator("black", 3);
 			
 		} else{ 
 			//WHITE TURN (CURRENT PC TURN ONLY)
@@ -135,9 +135,9 @@ function onBoardDataReceived(game) {
 			
 			var bestMoveSendData = new Uint16Array(num.length+1);
 			bestMoveSendData.set(num);
-			bestMoveSendData[num.length] = 3;
+			bestMoveSendData[num.length] = 5;
 			xhrBestMove.send(bestMoveSendData);
-			startThinkingIndicator("white", 500);
+			startThinkingIndicator("white", 5);
 		}
 	}	
 }
@@ -173,14 +173,14 @@ function encodeBase64GameState(u16State) {
 }
 
 var thinkingIndicator;
-function startThinkingIndicator(turn, interval) {
+function startThinkingIndicator(turn, depth) {
 	thinkingIndicator = window.setInterval( function() {
     var wait = document.getElementById('wait-' + turn);
-    if ( wait.innerHTML.length > 3 ) 
+    if ( wait.innerHTML.length > (depth + 1) ) 
         wait.innerHTML = "";
     else 
         wait.innerHTML += ".";
-    }, interval);
+    }, depth * 150);
 }
 
 function stopThinkingIndicator() {
