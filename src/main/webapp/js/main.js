@@ -48,7 +48,7 @@ window.addEventListener('resize', resizeCanvas, false);
 
 function resizeCanvas() {
 	var canvas = document.getElementById('gameBoard');
-	var baseLength = ((window.innerWidth-20) > (window.innerHeight - 100)) ? (window.innerHeight-100) : (window.innerWidth-20);
+	var baseLength = ((window.innerWidth-20) > (window.innerHeight - 200)) ? (window.innerHeight-200) : (window.innerWidth-20);
 	canvas.width = baseLength;
 	canvas.height = canvas.width;
 	gameBoard.redraw();
@@ -157,8 +157,10 @@ xhrNewGame.onload = function(e) {
 
 if(window.location.hash.length > 1) {
 	var encodedHash = window.location.hash.replace("#","");
-	var gameState = decodeBase64GameState(encodedHash);
-	onBoardDataReceived(gameState);
+	if(encodedHash.length > 0 && encodedHash !== "googleads") {
+		var gameState = decodeBase64GameState(encodedHash);
+		onBoardDataReceived(gameState);
+	}
 } else {
 	xhrNewGame.send();
 }
