@@ -24,8 +24,9 @@ gameBoard = new GameBoard("gameBoard", 8, {
 			console.log(binaryString);
 			num[i] = parseInt(binaryString, 2);
 		}
+		var position = row *8 + col;
 		num[8] = turn;
-		num[9] = row *8 + col;
+		num[9] = position;
 		console.log(num);
 		console.log("Put piece at (row,col): " + row + "," + col);
 
@@ -41,6 +42,14 @@ gameBoard = new GameBoard("gameBoard", 8, {
 		};
 
 		xhr.send(num);
+		
+		ga('send', {
+		  hitType: 'event',
+		  eventCategory: 'Game',
+		  eventAction: 'put',
+		  eventValue: position,
+		  eventLabel: binaryString
+		});
 	}
 });
 
@@ -142,6 +151,13 @@ function onBoardDataReceived(game) {
 			winner = "Black Win";
 		}
 		document.getElementById("gameresult").innerHTML = " - " + winner;
+		
+		ga('send', {
+		  hitType: 'event',
+		  eventCategory: 'Game',
+		  eventAction: 'over',
+		  eventLabel: winner
+		});
 	}
 }
 
