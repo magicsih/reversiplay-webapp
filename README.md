@@ -6,3 +6,4 @@
 # Demo
 
 https://reversiplay.appspot.com/
+![demo image](https://github.com/magicsih/reversiplay-webapp/blob/master/screenshot.png)
