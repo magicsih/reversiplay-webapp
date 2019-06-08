@@ -1,7 +1,7 @@
 # reversiplay-webapp
 
-html5 canvas-based othello game.
-othello game logic is written in Java.
+- html5 canvas-based othello game.
+- othello game logic is written in Java.
 
 # Demo
 
